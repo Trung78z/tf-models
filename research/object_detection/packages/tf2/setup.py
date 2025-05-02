@@ -17,12 +17,12 @@ REQUIRED_PACKAGES = [
     'lvis',                           # LVIS dataset evaluation support
     'scipy',                          # Scientific computations, used in data pipelines
     'pandas',                         # Data handling and manipulation
+    'tf-models-official>=2.14.0,<2.15.0'  # Official TF model implementations, match TF version
     'tensorflow==2.14.0',             # Main deep learning framework (version 2.14)
     'tensorflow_io==0.34.0',          # TF IO extensions, 0.34.0 compatible with TF 2.14
     'keras==2.14.0',                  # Keras library version matching TF 2.14
     'pyparsing==2.4.7',               # Prevents parsing issues in older matplotlib versions
     'sacrebleu<=2.2.0',               # BLEU score evaluation (used in NLP models)
-    'tf-models-official>=2.14.0,<2.15.0'  # Official TF model implementations, match TF version
 ]
 
 
