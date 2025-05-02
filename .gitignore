@@ -102,5 +102,5 @@ ENV/
 
 **/*.mp4
 **/z_datasets_test/ssd320/*
-capture/opencv/*
-capture/opencv_contrib/*
+capture/opencv
+capture/opencv_contrib
