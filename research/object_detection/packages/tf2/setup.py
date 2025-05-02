@@ -2,9 +2,7 @@
 import os
 from setuptools import find_packages
 from setuptools import setup
-
 REQUIRED_PACKAGES = [
-    # Required for apache-beam with PY3
     'avro-python3',
     'apache-beam',
     'pillow',
@@ -18,12 +16,35 @@ REQUIRED_PACKAGES = [
     'lvis',
     'scipy',
     'pandas',
-    'tf-models-official >2.10.0, <2.16.0',
-    'tensorflow_io',
-    'keras',
-    'pyparsing==2.4.7',  # TODO(b/204103388)
-    'sacrebleu<=2.2.0'  # https://github.com/mjpost/sacrebleu/issues/209
+    'tensorflow==2.13.0',
+    'tensorflow_io==0.33.0',     # TF 2.13
+    'keras==2.13.1',             # match TF 2.13
+    'pyparsing==2.4.7',
+    'sacrebleu<=2.2.0',
+    'tf-models-official==2.13.0'
 ]
+
+# REQUIRED_PACKAGES = [
+#     # Required for apache-beam with PY3
+#     'avro-python3',
+#     'apache-beam',
+#     'pillow',
+#     'lxml',
+#     'matplotlib',
+#     'Cython',
+#     'contextlib2',
+#     'tf-slim',
+#     'six',
+#     'pycocotools',
+#     'lvis',
+#     'scipy',
+#     'pandas',
+#     'tf-models-official >2.10.0, <2.16.0',
+#     'tensorflow_io',
+#     'keras',
+#     'pyparsing==2.4.7',  # TODO(b/204103388)
+#     'sacrebleu<=2.2.0'  # https://github.com/mjpost/sacrebleu/issues/209
+# ]
 
 setup(
     name='object_detection',
