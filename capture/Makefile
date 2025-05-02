@@ -1,14 +1,21 @@
 CXX ?= g++
 
-CXXFLAGS += -c -Wall $(shell pkg-config --cflags opencv4)
-LDFLAGS += $(shell pkg-config --libs --static opencv4)
+# Compiler flags
+CXXFLAGS = -std=c++17 -g -O0 `pkg-config --cflags opencv4`
 
+# Linker flags - MUST include all required OpenCV libraries
+LDFLAGS = `pkg-config --libs opencv4`
 
+# Final executable
+TARGET = main
 
-all: clean main
+all: $(TARGET)
 
-main: main.o; $(CXX) $< -o $@ $(LDFLAGS)
+$(TARGET): main.o
+	$(CXX) $< -o $@ $(LDFLAGS)
 
-%.o: %.cpp; $(CXX) $< -o $@ $(CXXFLAGS)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-clean: ; rm -f main.o main
+clean:
+	rm -f *.o $(TARGET)

@@ -1,57 +1,53 @@
 #include <opencv2/opencv.hpp>
+
 #include <iostream>
+
 using namespace cv;
+using namespace std;
+
 int main()
 {
-    // Open the default camera
     VideoCapture cam(0);
     if (!cam.isOpened())
     {
-        std::cout << "Error: Unable to access the camera!" << std::endl;
+        cerr << "Camera error!" << endl;
         return -1;
     }
 
-    // Get the default frame width and height
-    int frame_width = static_cast<int>(cam.get(CAP_PROP_FRAME_WIDTH));
-    int frame_height = static_cast<int>(cam.get(CAP_PROP_FRAME_HEIGHT));
+    int width = static_cast<int>(cam.get(CAP_PROP_FRAME_WIDTH));
+    int height = static_cast<int>(cam.get(CAP_PROP_FRAME_HEIGHT));
 
-    // Define the codec and create VideoWriter object
-    int fourcc = VideoWriter::fourcc('m', 'p', '4', 'v');
-    VideoWriter out("output.mp4", fourcc, 20.0, Size(frame_width, frame_height));
+    int fourcc = VideoWriter::fourcc('M', 'J', 'P', 'G');
+    VideoWriter out("output.avi", fourcc, 20.0, Size(width, height));
 
     if (!out.isOpened())
     {
-        std::cout << "Error: Could not open the output video file!" << std::endl;
+        cerr << "Failed to create video writer!" << endl;
         return -1;
     }
 
+    cout << "Recording started (press 'q' to stop)..." << endl;
+
+    Mat frame, processed;
     while (true)
     {
-        Mat frame;
-        bool ret = cam.read(frame);
-        if (!ret)
-        {
-            std::cout << "Error: Failed to capture image!" << std::endl;
+        cam >> frame;
+        if (frame.empty())
             break;
-        }
 
-        // Write the frame to the output file
+        // CPU processing (example: convert to grayscale)
+        cvtColor(frame, processed, COLOR_BGR2GRAY);
+        cvtColor(processed, frame, COLOR_GRAY2BGR);
+
         out.write(frame);
+        imshow("Live", frame);
 
-        // Display the captured frame
-        imshow("Camera", frame);
-
-        // Press 'q' to exit the loop
         if (waitKey(1) == 'q')
-        {
             break;
-        }
     }
 
-    // Release the capture and writer objects
     cam.release();
     out.release();
     destroyAllWindows();
-
     return 0;
 }
