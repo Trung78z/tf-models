@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  tensorflow:
+    image: tensorflow/tensorflow:2.15.0-gpu
+    runtime: nvidia
+    volumes:
+      - /home/trung/Desktop/tf-models/data:/mnt/data
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    stdin_open: true
+    tty: true
+
+# sudo docker run --gpus all -it tensorflow/tensorflow:2.15.0-gpu bash
+# sudo docker run --gpus all -it -v /home/trung/Desktop/tf-models:/tf-models tensorflow/tensorflow:2.15.0-gpu bash

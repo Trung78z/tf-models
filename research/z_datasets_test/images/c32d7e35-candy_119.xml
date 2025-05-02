@@ -1,0 +1,26 @@
+<annotation>
+  <folder>images</folder>
+  <filename>c32d7e35-candy_119.jpg</filename>
+  <path>c32d7e35-candy_119.jpg</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>1280</width>
+    <height>720</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>three_musketeers</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>394</xmin>
+      <ymin>218</ymin>
+      <xmax>506</xmax>
+      <ymax>354</ymax>
+    </bndbox>
+  </object>
+</annotation>
