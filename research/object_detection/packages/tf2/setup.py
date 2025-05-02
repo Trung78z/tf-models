@@ -21,7 +21,7 @@ REQUIRED_PACKAGES = [
     'keras==2.13.1',             # match TF 2.13
     'pyparsing==2.4.7',
     'sacrebleu<=2.2.0',
-    'tf-models-official==2.13.0'
+    'tf-models-official>2.10.0, <2.14.0'
 ]
 
 # REQUIRED_PACKAGES = [
