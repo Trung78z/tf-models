@@ -1,21 +1,28 @@
 #!/bin/bash
 
-# Kiểm tra protoc có sẵn và đúng phiên bản chưa
+set -e  # Exit immediately if a command exits with a non-zero status
+
+# Check if protoc is installed and the correct version
 if ! command -v protoc &> /dev/null || [ "$(protoc --version)" != "libprotoc 3.19.6" ]; then
-    # Cài đặt wget và unzip nếu chưa có
+    echo "Installing protoc 3.19.6..."
+
+    # Install wget and unzip if they are not installed
+    apt-get update
     apt-get install -y wget unzip
-    
-    # Tải và giải nén protoc phiên bản 3.19.6
+
+    # Download and extract protoc version 3.19.6
     wget https://github.com/protocolbuffers/protobuf/releases/download/v3.19.6/protoc-3.19.6-linux-x86_64.zip
-    
-    # Giải nén và di chuyển protoc vào thư mục /usr/local/bin
     unzip protoc-3.19.6-linux-x86_64.zip -d $HOME/protoc
+
+    # Move protoc binary to /usr/local/bin
     mv $HOME/protoc/bin/protoc /usr/local/bin/protoc
-    
-    echo "install successfully protoc 3.19.6"
-    
-    # Xóa file zip đã tải về
-    rm -r protoc-3.19.6-linux-x86_64.zip
+    chmod +x /usr/local/bin/protoc
+
+    # Confirm installation
+    echo "protoc 3.19.6 installed successfully"
+
+    # Clean up
+    rm -rf protoc-3.19.6-linux-x86_64.zip $HOME/protoc
 else
-    echo "protoc 3.19.6 installed, skip"
+    echo "protoc 3.19.6 already installed, skipping"
 fi
