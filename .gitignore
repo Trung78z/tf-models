@@ -104,3 +104,6 @@ ENV/
 **/z_datasets_test/ssd320/*
 capture/opencv
 capture/opencv_contrib
+
+**/faster_rcnn_resnet101_v1_640x640_coco17_tpu-8
+tfenv/*

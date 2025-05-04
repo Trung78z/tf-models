@@ -1,0 +1,2 @@
+sudo systemctl disable nxserver.service 
+systemctl --user disable vino-server.service

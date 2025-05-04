@@ -1,0 +1,1 @@
+ffmpeg -f v4l2 -i /dev/video0 -vf format=yuv420p output.mp4
