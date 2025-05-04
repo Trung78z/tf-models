@@ -3,10 +3,12 @@
 #include <chrono>
 #include <ctime>
 #include <csignal>
+#include <memory>
 
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 const int FPS = 30;
+const int SEGMENT_DURATION = 300; // 5 minutes in seconds
 bool running = true;
 
 void signalHandler(int signum) {
@@ -44,36 +46,48 @@ int main() {
         return -1;
     }
 
-    std::string output_file = get_output_filename();
-    
-    // Encoding pipeline - modified to use NVMM memory
-    std::string encode_pipeline = 
-        "appsrc ! "
-        "videoconvert ! "
-        "video/x-raw, format=NV12 ! "
-        "nvvidconv ! "
-        "video/x-raw(memory:NVMM), format=NV12 ! "
-        "nvv4l2h264enc insert-sps-pps=true insert-vui=true bitrate=8000000 ! "
-        "h264parse ! "
-        "qtmux ! "
-        "filesink location=" + output_file;
+    std::unique_ptr<cv::VideoWriter> out;
+    std::string current_output_file;
+    auto segment_start_time = std::chrono::steady_clock::now();
+    auto last_status_time = segment_start_time;
+    int frame_count = 0;
+    int segment_number = 0;
 
-    cv::VideoWriter out;
-    out.open(encode_pipeline, cv::CAP_GSTREAMER, 0, FPS, cv::Size(WIDTH, HEIGHT), true);
-    
-    if (!out.isOpened()) {
-        std::cerr << "Cannot create video writer" << std::endl;
-        std::cerr << "Make sure you have the proper GStreamer plugins installed" << std::endl;
+    auto create_new_writer = [&]() {
+        current_output_file = get_output_filename();
+        std::string encode_pipeline = 
+            "appsrc ! "
+            "videoconvert ! "
+            "video/x-raw, format=NV12 ! "
+            "nvvidconv ! "
+            "video/x-raw(memory:NVMM), format=NV12 ! "
+            "nvv4l2h264enc insert-sps-pps=true insert-vui=true bitrate=8000000 ! "
+            "h264parse ! "
+            "qtmux ! "
+            "filesink location=" + current_output_file;
+
+        out = std::make_unique<cv::VideoWriter>();
+        out->open(encode_pipeline, cv::CAP_GSTREAMER, 0, FPS, cv::Size(WIDTH, HEIGHT), true);
+        
+        if (!out->isOpened()) {
+            std::cerr << "Cannot create video writer" << std::endl;
+            return false;
+        }
+        
+        std::cout << "New segment started: " << current_output_file << std::endl;
+        segment_number++;
+        segment_start_time = std::chrono::steady_clock::now();
+        return true;
+    };
+
+    if (!create_new_writer()) {
         return -1;
     }
 
-    std::cout << "Recording started (720p H.264). Saving to " << output_file << std::endl;
+    std::cout << "Recording started (720p H.264). New file every 5 minutes." << std::endl;
     std::cout << "Press Ctrl+C to stop recording..." << std::endl;
 
     cv::Mat frame;
-    int frame_count = 0;
-    auto start_time = std::chrono::steady_clock::now();
-
     try {
         while (running) {
             if (!cap.read(frame)) {
@@ -89,14 +103,27 @@ int main() {
             cv::putText(frame, time_str, cv::Point(10, 30), 
                        cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(0, 255, 0), 2);
 
-            out.write(frame);
+            out->write(frame);
             frame_count++;
 
-            if (frame_count % 30 == 0) {
-                auto current_time = std::chrono::steady_clock::now();
-                auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time);
-                double fps = frame_count / elapsed.count();
-                std::cout << "Captured " << frame_count << " frames (" << fps << " fps)" << std::endl;
+            // Check if we need to start a new segment
+            auto current_time = std::chrono::steady_clock::now();
+            auto segment_duration = std::chrono::duration_cast<std::chrono::seconds>(current_time - segment_start_time).count();
+            
+            if (segment_duration >= SEGMENT_DURATION) {
+                out->release();
+                if (!create_new_writer()) {
+                    break;
+                }
+            }
+
+            // Print status every 30 seconds
+            if (std::chrono::duration_cast<std::chrono::seconds>(current_time - last_status_time).count() >= 30) {
+                auto total_duration = std::chrono::duration_cast<std::chrono::seconds>(current_time - segment_start_time);
+                double fps = frame_count / total_duration.count();
+                std::cout << "Segment " << segment_number << ": " << frame_count << " frames (" 
+                          << fps << " fps), Duration: " << total_duration.count() << "s" << std::endl;
+                last_status_time = current_time;
             }
         }
     } catch (...) {
@@ -104,13 +131,16 @@ int main() {
     }
 
     cap.release();
-    out.release();
+    if (out && out->isOpened()) {
+        out->release();
+    }
 
     auto end_time = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
-    std::cout << "Recording saved to " << output_file << std::endl;
-    std::cout << "Total frames: " << frame_count << std::endl;
-    std::cout << "Duration: " << duration.count() << " seconds" << std::endl;
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - segment_start_time);
+    std::cout << "Recording stopped" << std::endl;
+    std::cout << "Total segments: " << segment_number << std::endl;
+    std::cout << "Current segment frames: " << frame_count << std::endl;
+    std::cout << "Current segment duration: " << duration.count() << " seconds" << std::endl;
 
     return 0;
 }
