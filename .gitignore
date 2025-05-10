@@ -108,3 +108,4 @@ capture/opencv_contrib
 **/faster_rcnn_resnet101_v1_640x640_coco17_tpu-8
 tfenv/*
 **/.vscode
+research/z_datasets_train/ssd320/*
