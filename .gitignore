@@ -99,6 +99,7 @@ ENV/
 
 
 **/tf/*
+**/tfod/*
 
 **/*.mp4
 **/z_datasets_test/ssd320/*
