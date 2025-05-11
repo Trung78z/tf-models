@@ -3,6 +3,8 @@ sudo apt install gcc-12 g++-12
 sudo apt install libgtk2.0-dev pkg-config
 sudo apt install ffmpeg
 sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+
+mkdir -p build
 cd build
 
 cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_CUDA=ON -DCUDA_ARCH_BIN="7.5" -DWITH_NVCUVID=OFF -DWITH_NVCUVENC=OFF -DWITH_OPENGL=ON ../opencv
